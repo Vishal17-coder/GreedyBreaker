@@ -1,1 +1,0 @@
-"""GreedyBreaker backend application package."""
