@@ -474,7 +474,7 @@ A randomized experiment was run twice with identical configuration and PRNG seed
 | `divergence_step_index` | `1` | `1` | **Identical** |
 | `critical_greedy_action` | `"Selected Item 4 (v=41.000000, w=4.000000)"` | `"Selected Item 4 (v=41.000000, w=4.000000)"` | **Identical** |
 
-**Conclusion**: Bit-for-bit deterministic reproducibility verified.
+**Conclusion**: Deterministic reproducibility verified.
 
 ---
 

@@ -129,7 +129,7 @@ Every experiment produces a deterministic reproducibility token containing:
 - `search_strategy`
 - `random_seed`
 - `engine_version`
-Re-running the engine with these exact parameters must regenerate identical results bit-for-bit.
+Re-running the engine with these exact parameters must regenerate identical results deterministically.
 
 ---
 

@@ -7,7 +7,12 @@ build/
 *.dll
 *.lib
 *.a
-
+# Java / Maven
+target/
+backend/target/
+*.class
+*.jar
+*.war
 # Python
 __pycache__/
 *.py[cod]
