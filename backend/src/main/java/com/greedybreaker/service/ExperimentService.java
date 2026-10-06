@@ -205,7 +205,12 @@ public class ExperimentService {
             execution.setHasCounterexample(false);
         }
 
-        // Save execution
+        // Save execution (with raw result JSON for retrieval)
+        try {
+            execution.setRawResultJson(objectMapper.writeValueAsString(sr));
+        } catch (JsonProcessingException e) {
+            log.warn("Failed to serialize raw search result for storage: {}", e.getMessage());
+        }
         ExperimentExecution savedExec = executionRepository.save(execution);
 
         // Persist Counterexample entity if discovered
@@ -224,12 +229,14 @@ public class ExperimentService {
                 ce.setOrderingCriteria(mr.getOrderingCriteria() != null ? mr.getOrderingCriteria() : "Canonical ordering");
 
                 if (mr.getFinalVerification() != null) {
+                    ce.setVerificationStatus(mr.getFinalVerification().getStatus());
                     ce.setGreedyValue(mr.getFinalVerification().getGreedyValue());
                     ce.setOptimalValue(mr.getFinalVerification().getOptimalValue());
                     ce.setAbsoluteGap(mr.getFinalVerification().getAbsoluteGap());
                     ce.setRelativeGap(mr.getFinalVerification().getRelativeGap());
                     ce.setFailurePercent(mr.getFinalVerification().getFailurePercent());
                 } else if (sr.getBestVerification() != null) {
+                    ce.setVerificationStatus(sr.getBestVerification().getStatus());
                     ce.setGreedyValue(sr.getBestVerification().getGreedyValue());
                     ce.setOptimalValue(sr.getBestVerification().getOptimalValue());
                     ce.setAbsoluteGap(sr.getBestVerification().getAbsoluteGap());
@@ -239,6 +246,7 @@ public class ExperimentService {
             } else if (sr.getBestVerification() != null) {
                 ce.setOriginalInstanceJson(sr.getBestInstance() != null ? sr.getBestInstance().toString() : "{}");
                 ce.setMinimalInstanceJson(sr.getBestInstance() != null ? sr.getBestInstance().toString() : "{}");
+                ce.setVerificationStatus(sr.getBestVerification().getStatus());
                 ce.setGreedyValue(sr.getBestVerification().getGreedyValue());
                 ce.setOptimalValue(sr.getBestVerification().getOptimalValue());
                 ce.setAbsoluteGap(sr.getBestVerification().getAbsoluteGap());
@@ -376,7 +384,7 @@ public class ExperimentService {
         } catch (Exception ignored) {}
 
         EngineOutputDTO.EngineVerificationResult vr = new EngineOutputDTO.EngineVerificationResult();
-        vr.setStatus("OPTIMALITY_FAILURE");
+        vr.setStatus(ce.getVerificationStatus() != null ? ce.getVerificationStatus() : "OPTIMALITY_FAILURE");
         vr.setCounterexample(true);
         vr.setGreedyValue(ce.getGreedyValue());
         vr.setOptimalValue(ce.getOptimalValue());
@@ -385,6 +393,28 @@ public class ExperimentService {
         vr.setFailurePercent(ce.getFailurePercent());
         dto.setFinalVerification(vr);
 
+        return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public ExecutionResultDTO getFullResult(String experimentId) {
+        Experiment experiment = getExperimentEntity(experimentId);
+        ExperimentExecution lastExec = executionRepository.findFirstByExperimentIdOrderByStartedAtDesc(experimentId).orElse(null);
+
+        ExecutionResultDTO dto = new ExecutionResultDTO();
+        dto.setExperimentId(experimentId);
+        dto.setStatus(experiment.getStatus());
+
+        if (lastExec != null && lastExec.getRawResultJson() != null) {
+            try {
+                EngineOutputDTO.EngineSearchResult sr =
+                        objectMapper.readValue(lastExec.getRawResultJson(), EngineOutputDTO.EngineSearchResult.class);
+                dto.setSearchResult(sr);
+                dto.setReproducibilityToken(sr.getReproducibilityToken());
+            } catch (Exception e) {
+                log.warn("Could not deserialize stored raw result JSON for experiment {}: {}", experimentId, e.getMessage());
+            }
+        }
         return dto;
     }
 

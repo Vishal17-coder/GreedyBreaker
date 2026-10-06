@@ -56,11 +56,7 @@ public class ExperimentController {
 
     @GetMapping("/{id}/result")
     public ResponseEntity<ExecutionResultDTO> getResult(@PathVariable String id) {
-        ExperimentDetailDTO detail = experimentService.getExperiment(id);
-        ExecutionResultDTO result = new ExecutionResultDTO();
-        result.setExperimentId(detail.getId());
-        result.setStatus(detail.getStatus());
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(experimentService.getFullResult(id));
     }
 
     @GetMapping("/{id}/counterexamples")

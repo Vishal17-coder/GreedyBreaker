@@ -47,6 +47,9 @@ public class Counterexample {
     @Column(name = "ordering_criteria", columnDefinition = "TEXT", nullable = false)
     private String orderingCriteria;
 
+    @Column(name = "verification_status", length = 64)
+    private String verificationStatus;
+
     public Counterexample() {}
 
     // Getters and Setters
@@ -88,4 +91,7 @@ public class Counterexample {
 
     public String getOrderingCriteria() { return orderingCriteria; }
     public void setOrderingCriteria(String orderingCriteria) { this.orderingCriteria = orderingCriteria; }
+
+    public String getVerificationStatus() { return verificationStatus; }
+    public void setVerificationStatus(String verificationStatus) { this.verificationStatus = verificationStatus; }
 }

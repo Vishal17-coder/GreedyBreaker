@@ -61,6 +61,9 @@ public class ExperimentExecution {
     @Column(name = "status_message", columnDefinition = "TEXT")
     private String statusMessage;
 
+    @Column(name = "raw_result_json", columnDefinition = "TEXT")
+    private String rawResultJson;
+
     @Column(name = "started_at", nullable = false)
     private Instant startedAt;
 
@@ -135,6 +138,9 @@ public class ExperimentExecution {
 
     public String getStatusMessage() { return statusMessage; }
     public void setStatusMessage(String statusMessage) { this.statusMessage = statusMessage; }
+
+    public String getRawResultJson() { return rawResultJson; }
+    public void setRawResultJson(String rawResultJson) { this.rawResultJson = rawResultJson; }
 
     public Instant getStartedAt() { return startedAt; }
     public void setStartedAt(Instant startedAt) { this.startedAt = startedAt; }
